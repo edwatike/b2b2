@@ -8,35 +8,25 @@ from examples.parallel_simple_parser import ParallelSimpleParser
 import asyncio
 import logging
 
-async def main():
-    # Инициализация парсера с запросом
-    parser = ParallelSimpleParser("арматура")
+def main():
+    # Инициализируем парсер с запросом
+    parser = ParallelSimpleParser("нержавеющий порошок")
     
-    # Настройка логирования для отслеживания процесса
-    logging.basicConfig(level=logging.INFO)
+    # Запускаем парсер с 5 браузерами, каждый обрабатывает по 5 страниц
+    parser.run(num_browsers=5, pages_per_browser=5)
     
-    # Запуск парсера с 4 браузерами, каждый обрабатывает 5 страниц
-    # Всего 20 страниц (4 * 5 = 20)
-    results = await parser.run(num_browsers=4, pages_per_browser=5)
+    # Выводим статистику
+    print("\nСтатистика парсинга:")
+    print(f"Всего обработано страниц: 25")
+    print(f"Найдено сайтов: {len(parser.results)}")
     
-    # Подсчет уникальных доменов
-    unique_domains = set()
-    for result in results:
-        if 'url' in result:
-            try:
-                from urllib.parse import urlparse
-                domain = urlparse(result['url']).netloc
-                unique_domains.add(domain)
-            except:
-                continue
-    
-    # Вывод статистики
-    print(f"\nСтатистика парсинга:")
-    print(f"Всего результатов: {len(results)}")
-    print(f"Уникальных доменов: {len(unique_domains)}")
-    print("\nПримеры доменов:")
-    for domain in list(unique_domains)[:10]:
-        print(f"- {domain}")
+    # Выводим найденные сайты
+    print("\nНайденные сайты:")
+    for result in parser.results:
+        print(f"\nURL: {result['url']}")
+        print(f"Заголовок: {result['title']}")
+        print(f"Сниппет: {result['snippet'][:200]}...")
+        print("-" * 80)
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    main() 

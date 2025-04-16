@@ -139,19 +139,10 @@ class ParallelSimpleParser:
                 await context.grant_permissions(['geolocation'])
                 await context.set_geolocation(location)
                 
-                # Настраиваем расширенные заголовки
+                # Настраиваем User-Agent
                 await page.set_extra_http_headers({
-                    'User-Agent': rules.BROWSER_SETTINGS["user_agent"],
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-                    'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
-                    'Accept-Encoding': 'gzip, deflate, br',
-                    'Connection': 'keep-alive',
-                    'Upgrade-Insecure-Requests': '1',
-                    'Sec-Fetch-Dest': 'document',
-                    'Sec-Fetch-Mode': 'navigate',
-                    'Sec-Fetch-Site': 'none',
-                    'Sec-Fetch-User': '?1',
-                    'Cache-Control': 'max-age=0'
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+                    'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7'
                 })
                 
                 # Загружаем страницу поиска
@@ -250,14 +241,29 @@ class ParallelSimpleParser:
             async with async_playwright() as p:
                 # Запускаем браузер
                 browser = await p.chromium.launch(
-                    headless=rules.BROWSER_SETTINGS["headless"],
-                    args=rules.BROWSER_SETTINGS["args"]
+                    headless=True,
+                    args=[
+                        '--no-sandbox',
+                        '--disable-setuid-sandbox',
+                        '--disable-dev-shm-usage',
+                        '--disable-accelerated-2d-canvas',
+                        '--disable-gpu',
+                        '--window-size=1920,1080',
+                        '--disable-web-security',
+                        '--disable-features=IsolateOrigins,site-per-process',
+                        '--disable-blink-features=AutomationControlled'
+                    ]
                 )
                 
-                # Создаем новый контекст браузера
+                # Создаем контекст с уникальным профилем
                 context = await browser.new_context(
-                    viewport=rules.BROWSER_SETTINGS["viewport"],
-                    user_agent=rules.BROWSER_SETTINGS["user_agent"]
+                    viewport={'width': 1920, 'height': 1080},
+                    user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                    ignore_https_errors=True,
+                    locale='en-US',
+                    timezone_id='Europe/London',
+                    geolocation={'latitude': 51.5074, 'longitude': -0.1278},
+                    permissions=['geolocation']
                 )
                 
                 # Настраиваем перехватчик JavaScript

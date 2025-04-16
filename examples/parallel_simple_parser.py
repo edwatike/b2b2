@@ -176,7 +176,6 @@ class ParallelSimpleParser:
                 # Создаем контекст с уникальным профилем
                 context = await browser.new_context(
                     viewport={'width': 1920, 'height': 1080},
-                    user_data_dir=os.path.join(self.temp_dir, f'profile_{browser_id}'),
                     ignore_https_errors=True
                 )
                 
